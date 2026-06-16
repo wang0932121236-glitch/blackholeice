@@ -1040,29 +1040,37 @@ function SocialMedia() {
   );
 }
 
-// ============ NEWSLETTER ============
+// ============ NEWSLETTER / CONTACT ============
 function Newsletter() {
   return (
     <section className="py-20 px-8 bg-zinc-950">
       <div className="max-w-2xl mx-auto text-center">
-        <h2 className="font-heading italic text-4xl text-white mb-4">Stay in the Loop</h2>
-        <p className="text-white/60 mb-8">Subscribe for exclusive drops, special offers, and behind-the-scenes content.</p>
+        <h2 className="font-heading italic text-4xl text-white mb-4">Contact Us</h2>
+        <p className="text-white/60 mb-8">If you can't reach us, leave your email and the brand manager will contact you.</p>
 
-        <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto" onSubmit={e => e.preventDefault()}>
+        <form
+          action="https://formsubmit.co/wang0932121236@gmail.com"
+          method="POST"
+          className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
+        >
+          <input type="hidden" name="_subject" value="BLACKHOLEICE New Customer Inquiry" />
+          <input type="hidden" name="_template" value="table" />
           <input
             type="email"
+            name="email"
             placeholder="Enter your email"
+            required
             className="flex-1 bg-white/5 border border-white/10 px-6 py-4 rounded-full text-white placeholder:text-white/40 focus:outline-none focus:border-amber-500/50 transition-colors"
           />
           <button
             type="submit"
             className="liquid-glass-strong rounded-full px-8 py-4 text-sm font-medium text-white hover:text-amber-300 transition-colors whitespace-nowrap"
           >
-            Subscribe
+            Submit
           </button>
         </form>
 
-        <p className="text-white/30 text-xs mt-6">By subscribing, you agree to our Privacy Policy. Unsubscribe anytime.</p>
+        <p className="text-white/30 text-xs mt-6">We respect your privacy. Your email will never be shared.</p>
       </div>
     </section>
   );

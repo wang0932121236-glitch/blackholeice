@@ -757,6 +757,7 @@ class BlurText extends React.Component {
 // ============ HOT PRODUCTS ============
 function HotProducts() {
   const [products, setProducts] = React.useState([]);
+  const [selectedProduct, setSelectedProduct] = React.useState(null);
 
   React.useEffect(() => {
     loadTrendingProducts();
@@ -768,35 +769,42 @@ function HotProducts() {
   };
 
   return (
-    <section id="hot" className="py-20 px-8 bg-black">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <p className="text-amber-500 text-sm font-medium tracking-widest uppercase mb-4">Hot Items</p>
-          <h2 className="font-heading italic text-4xl md:text-5xl text-white">Trending Now</h2>
-        </div>
+    <>
+      <section id="hot" className="py-20 px-8 bg-black">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-amber-500 text-sm font-medium tracking-widest uppercase mb-4">Hot Items</p>
+            <h2 className="font-heading italic text-4xl md:text-5xl text-white">Trending Now</h2>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <a key={product.id} href="#" className="group block">
-              <div className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-zinc-800 to-black border border-white/10 group-hover:border-amber-500/50 transition-all mb-4 overflow-hidden">
-                <img
-                  src={product.images && product.images[0] ? product.images[0] : '/images/logo.png'}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <span className="bg-white text-black px-4 py-2 rounded-full text-sm font-medium">Quick View</span>
-                </div>
-              </div>
-              <div className="text-center">
-                <h3 className="font-medium text-white group-hover:text-amber-400 transition-colors mb-1">{product.name}</h3>
-                <p className="text-amber-500 font-medium">${product.price}</p>
-              </div>
-            </a>
-          ))}
+          <div className="liquid-glass-strong rounded-3xl p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((product) => (
+                <a key={product.id} href="#" className="group block" onClick={(e) => { e.preventDefault(); setSelectedProduct(product); }}>
+                  <div className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-zinc-800 to-black border border-white/10 group-hover:border-amber-500/50 transition-all mb-4 overflow-hidden">
+                    <img
+                      src={product.images && product.images[0] ? product.images[0] : '/images/logo.png'}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="bg-white text-black px-4 py-2 rounded-full text-sm font-medium">Quick View</span>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="font-medium text-white group-hover:text-amber-400 transition-colors mb-1">{product.name}</h3>
+                    <p className="text-amber-500 font-medium">${product.price}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+      {selectedProduct && (
+        <ProductModalContent product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      )}
+    </>
   );
 }
 

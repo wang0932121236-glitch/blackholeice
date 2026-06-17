@@ -777,7 +777,7 @@ function HotProducts() {
             <h2 className="font-heading italic text-4xl md:text-5xl text-white">Trending Now</h2>
           </div>
 
-          <div className="border border-white/10 rounded-3xl p-8">
+          <div className="liquid-glass rounded-3xl p-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {products.map((product) => (
                 <a key={product.id} href="#" className="group block" onClick={(e) => { e.preventDefault(); setSelectedProduct(product); }}>

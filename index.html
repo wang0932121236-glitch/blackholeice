@@ -755,14 +755,18 @@ class BlurText extends React.Component {
 }
 
 // ============ HOT PRODUCTS ============
-const hotProducts = [
-  { id: 1, name: "Aurora Ring", price: 899, cat: "Lab Diamond", isHot: true, desc: "Brilliant as the aurora, encircling your finger" },
-  { id: 2, name: "Lunar Necklace", price: 1299, cat: "Handmade", isHot: true, desc: "Gentle as moonlight, flowing at your neck" },
-  { id: 3, name: "Stellar Earrings", price: 599, cat: "Silver", isHot: true, desc: "Sparkling like stars, radiant at your ears" },
-  { id: 4, name: "Nova Bracelet", price: 2499, cat: "Custom", isHot: true, desc: "Explosive brilliance, dazzling at your wrist" },
-];
-
 function HotProducts() {
+  const [products, setProducts] = React.useState([]);
+
+  React.useEffect(() => {
+    loadTrendingProducts();
+  }, []);
+
+  const loadTrendingProducts = async () => {
+    const data = await supabaseFetch('products?category=eq.Trending%20Now&limit=4');
+    setProducts(data || []);
+  };
+
   return (
     <section id="hot" className="py-20 px-8 bg-black">
       <div className="max-w-7xl mx-auto">
@@ -772,26 +776,20 @@ function HotProducts() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {hotProducts.map((product) => (
+          {products.map((product) => (
             <a key={product.id} href="#" className="group block">
               <div className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-zinc-800 to-black border border-white/10 group-hover:border-amber-500/50 transition-all mb-4 overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <DiamondIcon className="w-20 h-20 text-amber-500/20" />
-                </div>
-
-                {product.isHot && (
-                  <div className="absolute top-4 left-4">
-                    <span className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">HOT</span>
-                  </div>
-                )}
+                <img
+                  src={product.images && product.images[0] ? product.images[0] : '/images/logo.png'}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <span className="bg-white text-black px-4 py-2 rounded-full text-sm font-medium">Quick View</span>
                 </div>
               </div>
               <div className="text-center">
-                <p className="text-xs text-white/40 mb-1">{product.cat}</p>
                 <h3 className="font-medium text-white group-hover:text-amber-400 transition-colors mb-1">{product.name}</h3>
-                <p className="text-xs text-white/60 mb-2">{product.desc}</p>
                 <p className="text-amber-500 font-medium">${product.price}</p>
               </div>
             </a>

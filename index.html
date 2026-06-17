@@ -777,8 +777,8 @@ function HotProducts() {
             <h2 className="font-heading italic text-4xl md:text-5xl text-white">Trending Now</h2>
           </div>
 
-          <div className="liquid-glass-strong rounded-3xl p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="border border-white/10 rounded-3xl p-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {products.map((product) => (
                 <a key={product.id} href="#" className="group block" onClick={(e) => { e.preventDefault(); setSelectedProduct(product); }}>
                   <div className="relative aspect-[3/4] rounded-2xl bg-gradient-to-br from-zinc-800 to-black border border-white/10 group-hover:border-amber-500/50 transition-all mb-4 overflow-hidden">

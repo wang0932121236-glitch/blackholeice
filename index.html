@@ -1277,16 +1277,72 @@ const generateProducts = (categoryName, count) => {
   return products;
 };
 
-// ============ PRODUCT PAGE ============
-const getProductImagePath = (categoryName, productId, imageIndex) => {
-  const folderName = encodeURIComponent(categoryName);
-  return `/images/products/${folderName}/${imageIndex}.png`;
-};
+// ============ PRODUCT MODAL ============
+function ProductModalContent({ product, onClose }) {
+  const [currentImg, setCurrentImg] = React.useState(0);
+  const images = product.images || [];
 
-function ProductPage({ category, products, onBack }) {
+  const prevImg = () => setCurrentImg(prev => prev > 0 ? prev - 1 : images.length - 1);
+  const nextImg = () => setCurrentImg(prev => prev < images.length - 1 ? prev + 1 : 0);
+
+  React.useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'ArrowLeft') prevImg();
+      if (e.key === 'ArrowRight') nextImg();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center" onClick={onClose}>
+      <button onClick={(e) => { e.stopPropagation(); prevImg(); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-2xl z-10">‹</button>
+      <div className="max-w-3xl w-full mx-4" onClick={e => e.stopPropagation()}>
+        <div className="aspect-square bg-zinc-900 rounded-xl overflow-hidden">
+          <img src={images[currentImg] || '/images/logo.png'} alt={product.name} className="w-full h-full object-contain" />
+        </div>
+        <div className="flex justify-center gap-2 mt-4">
+          {images.map((_, i) => (
+            <button key={i} onClick={(e) => { e.stopPropagation(); setCurrentImg(i); }} className={`w-3 h-3 rounded-full transition-all ${i === currentImg ? 'bg-amber-500' : 'bg-white/30'}`} />
+          ))}
+        </div>
+        <div className="text-center mt-4">
+          <h2 className="text-white text-2xl font-medium">{product.name}</h2>
+          <p className="text-amber-400 text-3xl font-medium mt-2">${product.price}</p>
+          {product.description && <p className="text-white/60 text-sm mt-4">{product.description}</p>}
+        </div>
+        <div className="flex justify-center gap-4 mt-6">
+          <a href="https://www.facebook.com/share/1EeH7ULXY3/?mibextid=wwXIfr" target="_blank" className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-8 rounded-full text-sm font-medium">Facebook</a>
+          <a href="https://wa.me/message/SSD6DZL4HQTXB1" target="_blank" className="bg-green-600 hover:bg-green-700 text-white py-3 px-8 rounded-full text-sm font-medium">WhatsApp</a>
+          <a href="mailto:wang0932121236@gmail.com" className="bg-amber-500 hover:bg-amber-600 text-black py-3 px-8 rounded-full text-sm font-medium">Email</a>
+        </div>
+      </div>
+      <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70">
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+      <button onClick={(e) => { e.stopPropagation(); nextImg(); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white text-2xl z-10">›</button>
+    </div>
+  );
+}
+
+// ============ PRODUCT PAGE ============
+function ProductPage({ category, onBack }) {
   const [sortBy, setSortBy] = React.useState('default');
   const [priceFilter, setPriceFilter] = React.useState('all');
   const [selectedProduct, setSelectedProduct] = React.useState(null);
+  const [products, setProducts] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    loadProducts();
+  }, [category.name]);
+
+  const loadProducts = async () => {
+    setLoading(true);
+    const data = await supabaseFetch(`products?category=eq.${encodeURIComponent(category.name)}&order=created_at.desc`);
+    setProducts(data || []);
+    setLoading(false);
+  };
 
   const sortedProducts = React.useMemo(() => {
     let filtered = [...products];
@@ -1303,7 +1359,7 @@ function ProductPage({ category, products, onBack }) {
   const ProductCard = ({ product }) => (
     <div onClick={() => setSelectedProduct(product)} className="group cursor-pointer">
       <div className="aspect-[3/4] rounded-xl bg-zinc-800 border border-white/10 overflow-hidden mb-3 relative">
-        <img src={getProductImagePath(category.name, product.id, product.images[0])} alt={product.name} className="w-full h-full object-cover" />
+        <img src={product.images && product.images[0] ? product.images[0] : '/images/logo.png'} alt={product.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
           <span className="bg-white text-black px-4 py-2 rounded-full text-sm font-medium">View Details</span>
         </div>
@@ -1315,28 +1371,9 @@ function ProductPage({ category, products, onBack }) {
     </div>
   );
 
-  const ProductModal = selectedProduct && (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setSelectedProduct(null)}>
-      <div className="bg-zinc-900 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="aspect-[3/4] bg-zinc-800">
-          <img src={getProductImagePath(category.name, selectedProduct.id, selectedProduct.images[0])} alt={selectedProduct.name} className="w-full h-full object-contain" />
-        </div>
-        <div className="p-6">
-          <h2 className="text-white text-xl font-medium mb-2">{selectedProduct.name}</h2>
-          <p className="text-amber-400 text-2xl font-medium mb-4">${selectedProduct.price}</p>
-          <p className="text-white/60 text-sm mb-6">Contact us for more details about this product.</p>
-          <div className="grid grid-cols-3 gap-3">
-            <a href="#" className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg text-center text-sm font-medium transition-colors">Facebook</a>
-            <a href="#" className="bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg text-center text-sm font-medium transition-colors">Telegram</a>
-            <a href="#" className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-center text-sm font-medium transition-colors">WhatsApp</a>
-          </div>
-        </div>
-        <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/70 transition-colors">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
-      </div>
-    </div>
-  );
+  const ProductModal = selectedProduct ? (
+    <ProductModalContent product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+  ) : null;
 
   return (
     <div className="min-h-screen bg-black">
@@ -1404,12 +1441,10 @@ function App() {
   if (selectedCategory) {
     const categoryId = `${selectedCategory.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}-${selectedGender === 'mens' ? 'm' : 'w'}`;
     const categoryInfo = { id: categoryId, name: selectedCategory };
-    const products = generateProducts(selectedCategory, 150);
 
     return (
       <ProductPage
         category={categoryInfo}
-        products={products}
         onBack={handleBack}
       />
     );
